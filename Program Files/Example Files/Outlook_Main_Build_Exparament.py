@@ -51,8 +51,7 @@ import win32com.client
 import tkinter as tk
 
 def main():
-    #user input
-    check = False
+    #user input for start and end date
     while check == False:
         startdate, check1 = datecheck("Enter the start date in the following format MM/DD/YYYY: ")
         enddate, check2 = datecheck("Enter the end date in the following format MM/DD/YYYY: ")
@@ -66,7 +65,7 @@ def main():
 
     # Access the calendar folder
     calendar = Outlook.GetDefaultFolder(9).Items
-
+    '''
     # Create a tkinter window
     window = tk.Tk()
     listbox = tk.Listbox(window)
@@ -79,7 +78,7 @@ def main():
     listbox.pack(expand=True, fill='both')
 
     window.mainloop()
-
+    '''
     # Create a dataframe to store the calendar information
     df = pd.DataFrame(columns = ['Subject', 'Start', 'Duration', 'Categories'])
 
@@ -93,6 +92,16 @@ def main():
             'Categories': appointment.Categories
         }, ignore_index=True)
 
+    # Check for None values in 'Start' column
+    if df['Start'].isnull().any():
+        print("Warning: 'Start' column contains None values")
+
+    # Handle None values (e.g., by replacing them with a default value or removing the rows)
+    df = df.dropna(subset=['Start'])
+
+    # Convert 'Start' to string type
+    df['Start'] = df['Start'].astype(str)
+
     # Split the 'Start' column into two new columns 'Date' and 'Time'
     df['Date'], df['Time'] = df['Start'].str.split(' ', 1).str
 
@@ -101,6 +110,8 @@ def main():
 
     # If you want to convert 'Time' to a time format, you can do so like this:
     df['Time'] = pd.to_datetime(df['Time']).dt.time
+
+    print(df.head())
 
 def datecheck(prompt):
     while True:
