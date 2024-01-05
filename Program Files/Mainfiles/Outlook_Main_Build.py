@@ -81,7 +81,26 @@ def main():
     window.mainloop()
 
     # Create a dataframe to store the calendar information
-    df = pd.DataFrame(columns = ['Subject', 'Start', 'Duration']) 
+    df = pd.DataFrame(columns = ['Subject', 'Start', 'Duration', 'Categories'])
+
+    # Loop through each item in the calendar
+    for appointment in calendar:
+        # Append the appointment data to the DataFrame
+        df = df.append({
+            'Subject': appointment.Subject,
+            'Start': appointment.Start,
+            'Duration': appointment.Duration,
+            'Categories': appointment.Categories
+        }, ignore_index=True)
+
+    # Split the 'Start' column into two new columns 'Date' and 'Time'
+    df['Date'], df['Time'] = df['Start'].str.split(' ', 1).str
+
+    # Convert 'Date' to datetime format
+    df['Date'] = pd.to_datetime(df['Date'], format='%m/%d/%Y')
+
+    # If you want to convert 'Time' to a time format, you can do so like this:
+    df['Time'] = pd.to_datetime(df['Time']).dt.time
 
 def datecheck(prompt):
     while True:
@@ -92,4 +111,5 @@ def datecheck(prompt):
         except ValueError:
             return None, False
 
-main()
+if __name__ == "__main__":
+    main()
